@@ -8,6 +8,7 @@ import { CacheService } from './CacheService';
 import { ConversationApiService } from './ConversationApiService';
 import { AngularFireMessaging } from '@angular/fire/messaging';
 import { mergeMapTo } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 
 @Injectable({
     providedIn: 'root'
@@ -40,12 +41,23 @@ export class InitService {
 
                         this.afMessaging.requestPermission
                         .pipe(mergeMapTo(this.afMessaging.tokenChanges))
-                        .subscribe((token) => { console.log(token); }, (error) => { console.error(error); });
+                        .subscribe(() => {}, (error) => { console.error(error); });
 
                         this.afMessaging.messaging.subscribe(messaging => {
                             messaging.onMessage(payload => {
-                                console.log(payload);
-                                this.messageService.OnMessage(payload);
+                                if ('Notification' in window && Notification['permission'] === 'granted') {
+                                    if ('serviceWorker' in navigator && environment.production) {
+                                        navigator.serviceWorker.ready.then(function (serviceWorkerRegistration) {
+                                            serviceWorkerRegistration.showNotification(payload.notification.title, {
+                                                body: payload.notification.body
+                                            });
+                                        });
+                                    } else {
+                                        const _notify = new Notification(payload.notification.title, {
+                                            body: payload.notification.body
+                                        });
+                                    }
+                                }
                             });
                         });
                     }

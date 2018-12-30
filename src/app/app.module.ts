@@ -1,10 +1,11 @@
 // Modules
 import { AppRoutingModule } from './Modules/AppRoutingModule';
-import { ServiceWorkerModule } from '@angular/service-worker';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
+import { AngularFireModule } from '@angular/fire';
+import { AngularFireMessagingModule } from '@angular/fire/messaging';
 // Component
 import { AppComponent } from './Controllers/app.component';
 import { ConversationsComponent } from './Controllers/conversations.component';
@@ -47,7 +48,8 @@ import { HeaderService } from './Services/HeaderService';
         FormsModule,
         HttpClientModule,
         AppRoutingModule,
-        ServiceWorkerModule.register('/ngsw-worker.js', { enabled: environment.production })
+        AngularFireModule.initializeApp(environment.firebase),
+        AngularFireMessagingModule
     ],
     declarations: [
         AboutComponent,

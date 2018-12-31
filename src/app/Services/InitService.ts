@@ -43,10 +43,20 @@ export class InitService {
                         .pipe(mergeMapTo(this.afMessaging.tokenChanges))
                         .subscribe(() => {}, (error) => { console.error(error); });
 
+                        if ('serviceWorker' in navigator) {
+                            navigator.serviceWorker.register('/firebase-messaging-sw.js')
+                            .then(function() {
+                              console.log('Service worker successfully registered.');
+                            })
+                            .catch(function(err) {
+                              console.error('Unable to register service worker.', err);
+                            });
+                        }
+
                         this.afMessaging.messaging.subscribe(messaging => {
                             messaging.onMessage(payload => {
                                 if ('Notification' in window && Notification['permission'] === 'granted') {
-                                    if ('serviceWorker' in navigator && environment.production) {
+                                    if ('serviceWorker' in navigator) {
                                         navigator.serviceWorker.ready.then(function (serviceWorkerRegistration) {
                                             serviceWorkerRegistration.showNotification(payload.notification.title, {
                                                 body: payload.notification.body
